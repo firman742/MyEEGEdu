@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { MuseClient } from "muse-js";
-import { Select, Card, Stack, Button, ButtonGroup, Checkbox } from "@shopify/polaris";
+import { Card, Stack, Button, ButtonGroup } from "@shopify/polaris";
 
 import { mockMuseEEG } from "./utils/mockMuseEEG";
 import * as translations from "./translations/en.json";
@@ -37,7 +37,7 @@ export function PageSwitcher() {
 
   // For auxEnable settings
   const [checked, setChecked] = useState(false);
-  const handleChange = useCallback((newChecked) => setChecked(newChecked), []);
+  // const handleChange = useCallback((newChecked) => setChecked(newChecked), []);
   window.enableAux = checked;
   if (window.enableAux) {
     window.nchans = 5;
@@ -78,28 +78,28 @@ export function PageSwitcher() {
   const [status, setStatus] = useState(generalTranslations.connect);
 
   // for picking a new module
-  const [selected, setSelected] = useState(intro);
-  const handleSelectChange = useCallback(value => {
-    setSelected(value);
+  const [selected, setSelected] = useState(alpha);
+  // const handleSelectChange = useCallback(value => {
+  //   setSelected(value);
 
-    console.log("Switching to: " + value);
+  //   console.log("Switching to: " + value);
 
-    if (window.subscriptionIntro) window.subscriptionIntro.unsubscribe();
-    if (window.subscriptionHeartRaw) window.subscriptionHeartRaw.unsubscribe();
-    if (window.subscriptionHeartSpectra) window.subscriptionHeartSpectra.unsubscribe();
-    if (window.subscriptionRaw) window.subscriptionRaw.unsubscribe();
-    if (window.subscriptionSpectra) window.subscriptionSpectra.unsubscribe();
-    if (window.subscriptionBands) window.subscriptionBands.unsubscribe();
-    if (window.subscriptionAnimate) window.subscriptionAnimate.unsubscribe();
-    if (window.subscriptionSpectro) window.subscriptionSpectro.unsubscribe();
-    if (window.subscriptionAlpha) window.subscriptionAlpha.unsubscribe();
-    if (window.subscriptionSsvep) window.subscriptionSsvep.unsubscribe();
-    if (window.subscriptionEvoked) window.subscriptionEvoked.unsubscribe();
-    if (window.subscriptionPredict) window.subscriptionPredict.unsubscribe();
+  //   if (window.subscriptionIntro) window.subscriptionIntro.unsubscribe();
+  //   if (window.subscriptionHeartRaw) window.subscriptionHeartRaw.unsubscribe();
+  //   if (window.subscriptionHeartSpectra) window.subscriptionHeartSpectra.unsubscribe();
+  //   if (window.subscriptionRaw) window.subscriptionRaw.unsubscribe();
+  //   if (window.subscriptionSpectra) window.subscriptionSpectra.unsubscribe();
+  //   if (window.subscriptionBands) window.subscriptionBands.unsubscribe();
+  //   if (window.subscriptionAnimate) window.subscriptionAnimate.unsubscribe();
+  //   if (window.subscriptionSpectro) window.subscriptionSpectro.unsubscribe();
+  //   if (window.subscriptionAlpha) window.subscriptionAlpha.unsubscribe();
+  //   if (window.subscriptionSsvep) window.subscriptionSsvep.unsubscribe();
+  //   if (window.subscriptionEvoked) window.subscriptionEvoked.unsubscribe();
+  //   if (window.subscriptionPredict) window.subscriptionPredict.unsubscribe();
 
-    subscriptionSetup(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   subscriptionSetup(value);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   // for popup flag when recording
   const [recordPop, setRecordPop] = useState(false);
@@ -292,10 +292,10 @@ export function PageSwitcher() {
         return (
           funSpectro.renderSliders(setSpectroData, setSpectroSettings, status, spectroSettings)
         );
-      case alpha:
-        return (
-          funAlpha.renderSliders(setAlphaData, setAlphaSettings, status, alphaSettings)
-        );
+      // case alpha:
+      //   return (
+      //     funAlpha.renderSliders(setAlphaData, setAlphaSettings, status, alphaSettings)
+      //   );
       case ssvep:
         return (
           funSsvep.renderSliders(setSsvepData, setSsvepSettings, status, ssvepSettings)
@@ -369,10 +369,10 @@ export function PageSwitcher() {
         return null
       case spectro:
         return null
-      case alpha:
-        return (
-          funAlpha.renderRecord(recordPopChange, recordPop, status, alphaSettings, recordTwoPopChange, recordTwoPop, setAlphaSettings)
-        )
+      // case alpha:
+      //   return (
+      //     funAlpha.renderRecord(recordPopChange, recordPop, status, alphaSettings, recordTwoPopChange, recordTwoPop, setAlphaSettings)
+      //   )
       case ssvep:
         return (
           funSsvep.renderRecord(recordPopChange, recordPop, status, ssvepSettings, recordTwoPopChange, recordTwoPop, setSsvepSettings)
@@ -396,6 +396,7 @@ export function PageSwitcher() {
       <Card sectioned>
         <Stack>
           <ButtonGroup>
+            {/* Button Connect With Bluetooth */}
             <Button
               primary={status === generalTranslations.connect}
               disabled={status !== generalTranslations.connect}
@@ -406,7 +407,8 @@ export function PageSwitcher() {
             >
               {status}
             </Button>
-            <Button
+            {/* Button Connect with Mock Data */}
+            {/* <Button
               disabled={status !== generalTranslations.connect}
               onClick={() => {
                 window.debugWithMock = true;
@@ -414,7 +416,8 @@ export function PageSwitcher() {
               }}
             >
               {status === generalTranslations.connect ? generalTranslations.connectMock : status}
-            </Button>
+            </Button> */}
+            {/* Button Disconnect */}
             <Button
               destructive
               onClick={refreshPage}
@@ -424,22 +427,23 @@ export function PageSwitcher() {
               {generalTranslations.disconnect}
             </Button>     
           </ButtonGroup>
-          <Checkbox
+          {/* Enable Auxi Mode */}
+          {/* <Checkbox
             label="Enable Muse Auxillary Channel"
             checked={checked}
             onChange={handleChange}
             disabled={!showAux || status !== generalTranslations.connect}
-          />
+          /> */}
         </Stack>
       </Card>
-      <Card title={translations.title} sectioned>
+      {/* <Card title={translations.title} sectioned>
         <Select
           label={""}
           options={chartTypes}
           onChange={handleSelectChange}
           value={selected}
         />
-      </Card>
+      </Card> */}
       {pipeSettingsDisplay()}
       {renderModules()}
       {renderRecord()}

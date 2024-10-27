@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { MuseClient } from "muse-js";
-import { Card, Stack, Button, ButtonGroup } from "@shopify/polaris";
+import { Card, Stack, Button, ButtonGroup, Checkbox } from "@shopify/polaris";
 
 import { mockMuseEEG } from "./utils/mockMuseEEG";
 import * as translations from "./translations/en.json";
@@ -37,7 +37,7 @@ export function PageSwitcher() {
 
   // For auxEnable settings
   const [checked, setChecked] = useState(false);
-  // const handleChange = useCallback((newChecked) => setChecked(newChecked), []);
+  const handleChange = useCallback((newChecked) => setChecked(newChecked), []);
   window.enableAux = checked;
   if (window.enableAux) {
     window.nchans = 5;
@@ -78,7 +78,7 @@ export function PageSwitcher() {
   const [status, setStatus] = useState(generalTranslations.connect);
 
   // for picking a new module
-  const [selected, setSelected] = useState(alpha);
+  const [selected, setSelected] = useState(spectra);
   // const handleSelectChange = useCallback(value => {
   //   setSelected(value);
 
@@ -417,6 +417,17 @@ export function PageSwitcher() {
             >
               {status === generalTranslations.connect ? generalTranslations.connectMock : status}
             </Button> */}
+            {/* Button Done */}
+            {/* <Button
+              primary={status === generalTranslations.connected}
+              disabled={status !== generalTranslations.connected}
+              onClick={refreshPage}
+              >
+              {generalTranslations.done}
+            </Button> */}
+
+            <Button id="doneButton">Done</Button>
+
             {/* Button Disconnect */}
             <Button
               destructive
@@ -428,12 +439,12 @@ export function PageSwitcher() {
             </Button>     
           </ButtonGroup>
           {/* Enable Auxi Mode */}
-          {/* <Checkbox
+          <Checkbox
             label="Enable Muse Auxillary Channel"
             checked={checked}
             onChange={handleChange}
             disabled={!showAux || status !== generalTranslations.connect}
-          /> */}
+          />
         </Stack>
       </Card>
       {/* <Card title={translations.title} sectioned>

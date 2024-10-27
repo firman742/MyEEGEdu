@@ -72,6 +72,29 @@ export function buildPipe(Settings) {
 
 export function setup(setData, Settings) {
   console.log("Subscribing to " + Settings.name);
+// Dataset berhasil didapat
+      // Todo: Buat Array baru 
+      /**
+       * Misal:
+       * 
+       * Kita punya 100 frequensi, sehingga data yang disimpan adalah:
+       * xValues= ['2','4','2','10', '89', '50', ..., ..., '82', .., .., '0'];
+       * yValues= ['0','1','2','3', '4', '5', ..., ..., '75', .., .., '100'];
+       * 
+       * Coba nanti cari cara gimana biar data yang ditangkap itu semua channel
+       * 
+       * 
+       * NB:
+       * - Untuk datanya diambil dari ke empat channel tadi dan dikumpulkan jadi 1, nanti ambil data xValues dan liat itu dari yValues yang mana
+       * - Misal dengan 400 Data tadi yang diambil adalah cukup xValuesnya, nanti dari xValues bisa dicari tau itu berada di frequensi yang mana (yValues)
+       *  xValues= [['2','4','2','10', '89', '50', ..., ..., '82', .., .., '0'], ['2','4','2','10', '89', '50', ..., ..., '82', .., .., '0'], ['2','4','2','10', '89', '50', ..., ..., '82', .., .., '0'], ....];
+       *  yValues= [['0','1','2','3', '4', '5', ..., ..., '75', .., .., '100'], ['0','1','2','3', '4', '5', ..., ..., '75', .., .., '100'], ['0','1','2','3', '4', '5', ..., ..., '75', .., .., '100'], ...];
+       */
+
+      
+      // Todo: Kumpulkan Data ke dalam Array
+      // Todo: Buat Fungsi baru untuk mengambil array dan menghitung 10 data terbesar
+      // Todo: Buat Fungsi Baru untuk melakukan klasifikasinya
 
   if (window.multicastAlpha$) {
     window.subscriptionAlpha = window.multicastAlpha$.subscribe(data => {

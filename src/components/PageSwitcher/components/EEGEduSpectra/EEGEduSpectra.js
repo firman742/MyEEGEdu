@@ -9,6 +9,8 @@ import { Line } from "react-chartjs-2";
 
 import { zipSamples } from "muse-js";
 
+import { useNavigate } from "react-router-dom";
+
 import {
   bandpassFilter,
   epoch,
@@ -68,8 +70,6 @@ export function buildPipe(Settings) {
 }
 
 export function setup(setData, Settings) {
-  console.log("Subscribing to " + Settings.name);
-
   const dataCollection = []; // Array to collect all datasets (xValue, yValue)
 
   if (window.multicastSpectra$) {
@@ -80,10 +80,10 @@ export function setup(setData, Settings) {
           channel.datasets[0].data = data.psd[index];
           channel.xLabels = data.freqs;
 
-          // Store xValue (data.psd) and yValue (data.freqs) for each channel
+          // Store yValue (data.psd) and xValue (data.freqs) for each channel
           dataCollection.push({
-            xValue: data.psd[index],
-            yValue: data.freqs
+            yValue: data.psd[index], // amplitude
+            xValue: data.freqs, // frequency
           });
         });
 
@@ -98,32 +98,43 @@ export function setup(setData, Settings) {
     });
 
     window.multicastSpectra$.connect();
-    console.log("Subscribed to " + Settings.name);
   }
 
-
-  // Function to get top 10 largest xValues
+  // Function to get top 10 largest yValues
   function getTop10LargestData(dataCollection) {
     const flatData = dataCollection.flatMap(item =>
-      item.xValue.map((x, idx) => ({ xValue: x, yValue: item.yValue[idx] }))
+      item.yValue.map((y, i) => ({ xValue: item.xValue[i], yValue: y }))
     );
-    // Sort by xValue and return top 10
-    return flatData.sort((a, b) => b.xValue - a.xValue).slice(0, 10);
+
+    // Menggunakan Map untuk menyimpan xValue unik dengan yValue tertinggi
+    const uniqueDataMap = new Map();
+
+    flatData.forEach(data => {
+      if (!uniqueDataMap.has(data.xValue) || uniqueDataMap.get(data.xValue) < data.yValue) {
+        uniqueDataMap.set(data.xValue, data.yValue);
+      }
+    });
+
+    // Konversi hasil ke array dan urutkan berdasarkan yValue
+    const uniqueDataArray = Array.from(uniqueDataMap, ([xValue, yValue]) => ({ xValue, yValue }));
+
+    // Ambil 10 nilai terbesar berdasarkan yValue
+    return uniqueDataArray.sort((a, b) => b.yValue - a.yValue).slice(0, 10);
   }
 
   // Function to classify data based on frequency range
   function classifyData(topData) {
     return topData.map(data => {
       let name = "";
-      if (data.yValue >= 0 && data.yValue <= 4) {
+      if (data.xValue >= 0 && data.xValue <= 4) {
         name = "Delta";
-      } else if (data.yValue > 4 && data.yValue <= 8) {
+      } else if (data.xValue > 4 && data.xValue <= 8) {
         name = "Tetha";
-      } else if (data.yValue > 8 && data.yValue <= 12) {
+      } else if (data.xValue > 8 && data.xValue <= 12) {
         name = "Alpha";
-      } else if (data.yValue > 12 && data.yValue <= 30) {
+      } else if (data.xValue > 12 && data.xValue <= 30) {
         name = "Beta";
-      } else if (data.yValue >= 30) {
+      } else if (data.xValue >= 30) {
         name = "Gamma";
       }
       return { ...data, name };
@@ -151,19 +162,7 @@ export function setup(setData, Settings) {
     }
     return "Klasifikasi Tidak Diketahui";
   }
-
-  // After data collection is done, perform top 10 selection, classification, and calculate readiness
-  // Event listener for 'Done' button click
-  const doneButton = document.getElementById("doneButton");
-  doneButton.addEventListener("click", () => {
-    const top10Data = getTop10LargestData(dataCollection);
-    const classifiedData = classifyData(top10Data);
-    const classificationResult = calculateClassification(classifiedData);
-
-    console.log("Top 10 Data: ", top10Data);
-    console.log("Classified Data: ", classifiedData);
-    // console.log("Classification Result: ", classificationResult);
-  });
+  
 }
 
 
@@ -262,10 +261,7 @@ export function renderModule(channels) {
         </Card.Section>
       )
     }
-
-
   }
-
 
   const opts = {
     height: '195',
@@ -280,9 +276,9 @@ export function renderModule(channels) {
       <Card title={specificTranslations.title}>
         <Card.Section>
           <Stack>
-            <TextContainer>
+            {/* <TextContainer>
               <p>{specificTranslations.description}</p>
-            </TextContainer>
+            </TextContainer> */}
           </Stack>
         </Card.Section>
         <Card.Section>
@@ -348,25 +344,6 @@ export function renderSliders(setData, setSettings, status, Settings) {
     setSettings(prevState => ({ ...prevState, duration: value }));
     resetPipeSetup();
   }
-
-  return (
-    <Card></Card>
-  )
-}
-
-export function renderRecord(recordPopChange, recordPop, status, Settings, setSettings) {
-
-  function handleSecondsToSaveRangeSliderChange(value) {
-    setSettings(prevState => ({ ...prevState, secondsToSave: value }));
-  }
-
-  const opts = {
-    height: '195',
-    width: '320',
-    playerVars: { // https://developers.google.com/youtube/player_parameters
-      autoplay: false
-    }
-  };
 
   return (
     <Card></Card>

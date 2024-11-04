@@ -12,6 +12,7 @@ import * as funSpectra from "./components/EEGEduSpectra/EEGEduSpectra";
 const spectra = translations.types.spectra;
 
 export function PageSwitcher() {
+
   // Pengaturan auxEnable
   const [checked, setChecked] = useState(false);
   const handleChange = useCallback((newChecked) => setChecked(newChecked), []);
@@ -24,10 +25,10 @@ export function PageSwitcher() {
   let showAux = true; // untuk memastikan bisa ditekan (mencegah penggunaan pada beberapa modul)
 
   // data yang ditarik dari multicast$
-  const [spectraData, setSpectraData] = useState(emptyAuxChannelData); 
+  const [spectraData, setSpectraData] = useState(emptyAuxChannelData);
 
   // pengaturan pipa
-  const [spectraSettings, setSpectraSettings] = useState(funSpectra.getSettings); 
+  const [spectraSettings, setSpectraSettings] = useState(funSpectra.getSettings);
 
   // status koneksi
   const [status, setStatus] = useState(generalTranslations.connect);
@@ -43,6 +44,8 @@ export function PageSwitcher() {
   const [recordTwoPop, setRecordTwoPop] = useState(false);
   const recordTwoPopChange = useCallback(() => setRecordTwoPop(!recordTwoPop), [recordTwoPop]);
 
+  const [top10Data, setTop10Data] = useState(null);
+
   switch (selected) {
     case spectra:
       showAux = true;
@@ -52,7 +55,7 @@ export function PageSwitcher() {
   }
 
   const chartTypes = [
-    { label: spectra, value: spectra }, 
+    { label: spectra, value: spectra },
 
   ];
 
@@ -105,12 +108,13 @@ export function PageSwitcher() {
     }
   }
 
-  function refreshPage(){
+  function refreshPage() {
     window.location.reload();
   }
 
+
   function pipeSettingsDisplay() {
-    switch(selected) {
+    switch (selected) {
       case spectra:
         return (
           funSpectra.renderSliders(setSpectraData, setSpectraSettings, status, spectraSettings)
@@ -127,7 +131,24 @@ export function PageSwitcher() {
         console.log("Kesalahan pada renderCharts switch.");
     }
   }
- 
+
+  function handleDoneButtonClick() {
+    const top10DataResult = funSpectra.ResultTop10Data();
+    const classification = funSpectra.ResultClassification();
+    const calculateClassification = funSpectra.ResultClassificationData();
+
+    // Update the state with the new top10Data
+    setTop10Data(top10DataResult);
+
+    const data = {
+      top10Data,
+      classification,
+      calculateClassification,
+    };
+
+    console.log(data);
+
+  }
   // Tampilkan seluruh halaman menggunakan fungsi di atas
   return (
     <React.Fragment>
@@ -145,8 +166,8 @@ export function PageSwitcher() {
             >
               {status}
             </Button>
-              {/* buat tombol untuk menyelesaikan proses dan refresh halaman lalu kirim data ke function renderModule() */}
-              {/* <Button onClick={handleDoneButtonClick}>Selesai</Button> */}
+            {/* buat tombol untuk menyelesaikan proses dan refresh halaman lalu kirim data ke function renderModule() */}
+            <Button onClick={handleDoneButtonClick}>Selesai</Button>
 
             {/* Tombol Putuskan Koneksi */}
             <Button
@@ -156,7 +177,7 @@ export function PageSwitcher() {
               disabled={status === generalTranslations.connect}
             >
               {generalTranslations.disconnect}
-            </Button>     
+            </Button>
           </ButtonGroup>
           {/* Aktifkan Mode Auxi */}
           <Checkbox
@@ -177,6 +198,20 @@ export function PageSwitcher() {
       </Card> */}
       {pipeSettingsDisplay()}
       {renderModules()}
+      {/* Tampilkan seluruh data dari top10Data dalam bentuk list */}
+      <Card title={translations.classification} sectioned>
+        {top10Data ? (
+          <ul>
+            {top10Data.map((item, index) => (
+              <li key={index}>{item}</li> // Ganti item dengan properti yang sesuai jika item adalah objek
+            ))}
+          </ul>
+        ) : (
+          <p>Tidak ada data yang tersedia.</p>
+        )}
+      </Card>
+
+
     </React.Fragment>
   );
 }

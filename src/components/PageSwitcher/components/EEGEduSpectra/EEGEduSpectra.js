@@ -9,8 +9,6 @@ import { Line } from "react-chartjs-2";
 
 import { zipSamples } from "muse-js";
 
-import { useNavigate } from "react-router-dom";
-
 import {
   bandpassFilter,
   epoch,
@@ -68,9 +66,9 @@ export function buildPipe(Settings) {
     multicast(() => new Subject())
   );
 }
+const dataCollection = []; // Array to collect all datasets (xValue, yValue)
 
 export function setup(setData, Settings) {
-  const dataCollection = []; // Array to collect all datasets (xValue, yValue)
 
   if (window.multicastSpectra$) {
     window.subscriptionSpectra = window.multicastSpectra$.subscribe(data => {
@@ -99,72 +97,85 @@ export function setup(setData, Settings) {
 
     window.multicastSpectra$.connect();
   }
-
-  // Function to get top 10 largest yValues
-  function getTop10LargestData(dataCollection) {
-    const flatData = dataCollection.flatMap(item =>
-      item.yValue.map((y, i) => ({ xValue: item.xValue[i], yValue: y }))
-    );
-
-    // Menggunakan Map untuk menyimpan xValue unik dengan yValue tertinggi
-    const uniqueDataMap = new Map();
-
-    flatData.forEach(data => {
-      if (!uniqueDataMap.has(data.xValue) || uniqueDataMap.get(data.xValue) < data.yValue) {
-        uniqueDataMap.set(data.xValue, data.yValue);
-      }
-    });
-
-    // Konversi hasil ke array dan urutkan berdasarkan yValue
-    const uniqueDataArray = Array.from(uniqueDataMap, ([xValue, yValue]) => ({ xValue, yValue }));
-
-    // Ambil 10 nilai terbesar berdasarkan yValue
-    return uniqueDataArray.sort((a, b) => b.yValue - a.yValue).slice(0, 10);
-  }
-
-  // Function to classify data based on frequency range
-  function classifyData(topData) {
-    return topData.map(data => {
-      let name = "";
-      if (data.xValue >= 0 && data.xValue <= 4) {
-        name = "Delta";
-      } else if (data.xValue > 4 && data.xValue <= 8) {
-        name = "Tetha";
-      } else if (data.xValue > 8 && data.xValue <= 12) {
-        name = "Alpha";
-      } else if (data.xValue > 12 && data.xValue <= 30) {
-        name = "Beta";
-      } else if (data.xValue >= 30) {
-        name = "Gamma";
-      }
-      return { ...data, name };
-    });
-  }
-
-  // Function to determine classification state based on the most dominant frequencies
-  function calculateClassification(classifiedData) {
-    const frequencyCount = classifiedData.reduce((acc, data) => {
-      acc[data.name] = (acc[data.name] || 0) + 1;
-      return acc;
-    }, {});
-
-    const sortedFrequencies = Object.entries(frequencyCount).sort((a, b) => b[1] - a[1]);
-    const [mostDominant, secondMostDominant] = sortedFrequencies;
-
-    if (mostDominant && secondMostDominant) {
-      if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha") {
-        return "Siap Belajar";
-      } else if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha" && sortedFrequencies.length > 2) {
-        return "Kesiapan Belajar Sedang";
-      } else if (mostDominant[0] !== "Tetha" && mostDominant[0] !== "Alpha") {
-        return "Kesiapan Belajar Buruk";
-      }
-    }
-    return "Klasifikasi Tidak Diketahui";
-  }
   
 }
 
+export function ResultTop10Data() {
+  return getTop10LargestData(dataCollection);
+}
+export function ResultClassification() {
+  const topData = ResultTop10Data();
+  return classifyData(topData);
+}
+export function  ResultClassificationData() {
+  const classifiedData = ResultClassification();
+  return calculateClassification(classifiedData);
+}
+
+// Function to get top 10 largest yValues
+function getTop10LargestData(dataCollection) {
+  const flatData = dataCollection.flatMap(item =>
+    item.yValue.map((y, i) => ({ xValue: item.xValue[i], yValue: y }))
+  );
+
+  // Menggunakan Map untuk menyimpan xValue unik dengan yValue tertinggi
+  const uniqueDataMap = new Map();
+
+  flatData.forEach(data => {
+    if (!uniqueDataMap.has(data.xValue) || uniqueDataMap.get(data.xValue) < data.yValue) {
+      uniqueDataMap.set(data.xValue, data.yValue);
+    }
+  });
+
+  // Konversi hasil ke array dan urutkan berdasarkan yValue
+  const uniqueDataArray = Array.from(uniqueDataMap, ([xValue, yValue]) => ({ xValue, yValue }));
+
+  // Ambil 10 nilai terbesar berdasarkan yValue
+  return uniqueDataArray.sort((a, b) => b.yValue - a.yValue).slice(0, 10);
+}
+
+// Function to classify data based on frequency range
+function classifyData(topData) {
+  return topData.map(data => {
+    let name = "";
+    if (data.xValue >= 0 && data.xValue <= 4) {
+      name = "Delta";
+    } else if (data.xValue > 4 && data.xValue <= 8) {
+      name = "Tetha";
+    } else if (data.xValue > 8 && data.xValue <= 12) {
+      name = "Alpha";
+    } else if (data.xValue > 12 && data.xValue <= 30) {
+      name = "Beta";
+    } else if (data.xValue >= 30) {
+      name = "Gamma";
+    }
+    return { ...data, name };
+  });
+}
+
+// Function to determine classification state based on the most dominant frequencies
+function calculateClassification(classifiedData) {
+  const frequencyCount = classifiedData.reduce((acc, data) => {
+    acc[data.name] = (acc[data.name] || 0) + 1;
+    return acc;
+  }, {});
+
+  const sortedFrequencies = Object.entries(frequencyCount).sort((a, b) => b[1] - a[1]);
+  const [mostDominant, secondMostDominant] = sortedFrequencies;
+
+  console.log(mostDominant);
+  
+  if (mostDominant && secondMostDominant) {
+    if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha") {
+      return "Siap Belajar";
+    } else if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha" && sortedFrequencies.length > 2) {
+      return "Kesiapan Belajar Sedang";
+    } else if (mostDominant[0] !== "Tetha" && mostDominant[0] !== "Alpha") {
+      return "Kesiapan Belajar Buruk";
+    }
+  }
+  return "Klasifikasi Tidak Diketahui";
+}
 
 export function renderModule(channels) {
   function renderCharts() {

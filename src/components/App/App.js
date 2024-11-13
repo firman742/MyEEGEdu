@@ -7,7 +7,7 @@ import * as translations from "./translations/en.json";
 export function App() {
   return (
     <AppProvider i18n={enTranslations}>
-      <Page title={translations.title}>
+      <Page title={translations.title} subtitle={translations.subtitle}>
         <PageSwitcher />
       </Page>
     </AppProvider>

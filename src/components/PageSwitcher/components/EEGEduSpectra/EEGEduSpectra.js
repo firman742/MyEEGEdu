@@ -163,15 +163,13 @@ function calculateClassification(classifiedData) {
   const sortedFrequencies = Object.entries(frequencyCount).sort((a, b) => b[1] - a[1]);
   const [mostDominant, secondMostDominant] = sortedFrequencies;
 
-  console.log(mostDominant);
-  
   if (mostDominant && secondMostDominant) {
     if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha") {
-      return "Siap Belajar";
+      return "KESIAPAN TINGGI";
     } else if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha" && sortedFrequencies.length > 2) {
-      return "Kesiapan Belajar Sedang";
+      return "KESIAPAN SEDANG";
     } else if (mostDominant[0] !== "Tetha" && mostDominant[0] !== "Alpha") {
-      return "Kesiapan Belajar Buruk";
+      return "KESIAPAN RENDAH";
     }
   }
   return "Klasifikasi Tidak Diketahui";
@@ -266,7 +264,7 @@ export function renderModule(channels) {
         <Card.Section>
           <Stack>
             <TextContainer>
-              <p>{'Connect the device above to see the plot'}</p>
+              <p>{'Hubungkan perangkat di atas untuk melihat plotnya'}</p>
             </TextContainer>
           </Stack>
         </Card.Section>
@@ -296,7 +294,7 @@ export function renderModule(channels) {
           <div style={chartStyles.wrapperStyle.style}>{renderCharts()}</div>
         </Card.Section>
       </Card>
-      <Card title="Klasifikasi" sectioned>
+      {/* <Card title="Klasifikasi" sectioned>
         <TextContainer>
           <p>Berdasarkan Channel:</p>
           <ul>
@@ -312,9 +310,8 @@ export function renderModule(channels) {
             <li>Tetha + Alpha Dominan, namun channel lain juga tinggi = maka dalam keadaan kesiapan belajar sedang</li>
             <li>Tetha + Alpha Tidak Dominan = maka dalam keadaan kesiapan belajar yang buruk</li>
           </ul>
-          {/* Display Top 10 Data */}
         </TextContainer>
-      </Card>
+      </Card> */}
     </React.Fragment>
   );
 }

@@ -43,8 +43,9 @@ export function PageSwitcher() {
   // untuk flag popup saat merekam kondisi kedua
   const [recordTwoPop, setRecordTwoPop] = useState(false);
   const recordTwoPopChange = useCallback(() => setRecordTwoPop(!recordTwoPop), [recordTwoPop]);
+  const [data, setData] = useState(null); // Step 1: Define state for data
 
-  const [top10Data, setTop10Data] = useState(null);
+  // const [top10Data, setTop10Data] = useState(null);
 
   switch (selected) {
     case spectra:
@@ -108,10 +109,14 @@ export function PageSwitcher() {
     }
   }
 
-  function refreshPage() {
-    window.location.reload();
+  function disconnect() {
+    if (window.debugWithMock) {
+      window.source = {};
+      window.source.connectionStatus.value = false;
+    } else {
+      window.source.disconnect(); // Assuming this method exists to disconnect.
+    }
   }
-
 
   function pipeSettingsDisplay() {
     switch (selected) {
@@ -133,21 +138,37 @@ export function PageSwitcher() {
   }
 
   function handleDoneButtonClick() {
-    const top10DataResult = funSpectra.ResultTop10Data();
-    const classification = funSpectra.ResultClassification();
     const calculateClassification = funSpectra.ResultClassificationData();
+    let description = "";
+    let learningMethod = "";
 
-    // Update the state with the new top10Data
-    setTop10Data(top10DataResult);
+    if (calculateClassification === 'KESIAPAN TINGGI') {
+      description = 'Siswa menunjukkan kesiapan tinggi untuk menerima pelajaran.';
+    } else if (calculateClassification === 'KESIAPAN SEDANG') {
+      description = 'Siswa memiliki kesiapan sedang. Dapat diberikan lebih banyak motivasi.';
+    } else if (calculateClassification === 'KESIAPAN RENDAH') {
+      description = 'Siswa membutuhkan perhatian lebih untuk meningkatkan kesiapan belajar.';
+    } else {
+      description = "-"
+    }
+
+    if (calculateClassification === 'KESIAPAN TINGGI') {
+      learningMethod = 'Metode pembelajaran yang lebih interaktif seperti diskusi atau praktik akan efektif.';
+    } else if (calculateClassification === 'KESIAPAN SEDANG') {
+      learningMethod = 'Metode pembelajaran berbasis proyek dengan tambahan motivasi bisa membantu siswa.';
+    } else if (calculateClassification === 'KESIAPAN RENDAH') {
+      learningMethod = 'Pendekatan yang lebih personal dan penggunaan metode visualisasi dapat meningkatkan kesiapan belajar.';
+    } else {
+      learningMethod = '-';
+    }
 
     const data = {
-      top10Data,
-      classification,
       calculateClassification,
+      description,
+      learningMethod,
     };
 
-    console.log(data);
-
+    setData(data);
   }
   // Tampilkan seluruh halaman menggunakan fungsi di atas
   return (
@@ -166,26 +187,48 @@ export function PageSwitcher() {
             >
               {status}
             </Button>
-            {/* buat tombol untuk menyelesaikan proses dan refresh halaman lalu kirim data ke function renderModule() */}
-            <Button onClick={handleDoneButtonClick}>Selesai</Button>
+
+            {/* Button Connect with Mock Data */}
+            <Button
+              disabled={status !== generalTranslations.connect}
+              onClick={() => {
+                window.debugWithMock = true;
+                connect();
+              }}
+            >
+              {status === generalTranslations.connect ? generalTranslations.connectMock : status}
+            </Button>
+
+            {/* Button Finish */}
+            <Button
+              destructive
+              onClick={() => {
+                handleDoneButtonClick();
+                disconnect();
+              }}
+              primary={status !== generalTranslations.connect}
+              disabled={status === generalTranslations.connect}
+            >
+              Finish
+            </Button>
 
             {/* Tombol Putuskan Koneksi */}
-            <Button
+            {/* <Button
               destructive
               onClick={refreshPage}
               primary={status !== generalTranslations.connect}
               disabled={status === generalTranslations.connect}
             >
               {generalTranslations.disconnect}
-            </Button>
+            </Button> */}
           </ButtonGroup>
           {/* Aktifkan Mode Auxi */}
-          <Checkbox
+          {/* <Checkbox
             label="Aktifkan Saluran Bantu Muse"
             checked={checked}
             onChange={handleChange}
             disabled={!showAux || status !== generalTranslations.connect}
-          />
+          /> */}
         </Stack>
       </Card>
       {/* <Card title={translations.title} sectioned>
@@ -200,18 +243,18 @@ export function PageSwitcher() {
       {renderModules()}
       {/* Tampilkan seluruh data dari top10Data dalam bentuk list */}
       <Card title={translations.classification} sectioned>
-        {top10Data ? (
-          <ul>
-            {top10Data.map((item, index) => (
-              <li key={index}>{item}</li> // Ganti item dengan properti yang sesuai jika item adalah objek
-            ))}
-          </ul>
-        ) : (
-          <p>Tidak ada data yang tersedia.</p>
+        {data && (
+          <div>
+            <h1 style={{ fontSize: "30px" }}><b>{JSON.stringify(data.calculateClassification, null, 2)}</b></h1>
+            <br></br>
+            <h2>{JSON.stringify(data.description, null, 2)}</h2>
+            <br></br>
+            <h2><b>Metode Pembelajaran yang perlu diterapkan:</b> {JSON.stringify(data.learningMethod, null, 2)}</h2>
+          </div>
         )}
       </Card>
 
-
+      <pre style={{ fontSize: "10px", alignContent: "center", textAlign: "center" }}>Pengabdian dengan dukungan Kemendibudristek 2024</pre>
     </React.Fragment>
   );
 }

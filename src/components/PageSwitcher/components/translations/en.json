@@ -1,5 +1,6 @@
 {
   "connect": "Connect Muse Headband",
+  "finish" : "Finish",
   "connectMock": "Connect Mock Data",
   "connecting": "Connecting to Muse",
   "connectingMock": "Connecting to Mock Data",

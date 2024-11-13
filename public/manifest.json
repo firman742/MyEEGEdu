@@ -1,9 +1,9 @@
 {
-  "short_name": "EEGEdu",
-  "name": "EEGedu Application",
+  "short_name": "SIBI",
+  "name": "Screening Kesiapan Belajar Siswa Disabilitas berbasis EEG",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "logo.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     }

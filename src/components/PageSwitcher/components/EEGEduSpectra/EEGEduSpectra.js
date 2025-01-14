@@ -97,7 +97,7 @@ export function setup(setData, Settings) {
 
     window.multicastSpectra$.connect();
   }
-  
+
 }
 
 export function ResultTop10Data() {
@@ -107,7 +107,7 @@ export function ResultClassification() {
   const topData = ResultTop10Data();
   return classifyData(topData);
 }
-export function  ResultClassificationData() {
+export function ResultClassificationData() {
   const classifiedData = ResultClassification();
   return calculateClassification(classifiedData);
 }
@@ -155,23 +155,41 @@ function classifyData(topData) {
 
 // Function to determine classification state based on the most dominant frequencies
 function calculateClassification(classifiedData) {
+  // Count frequency occurrence
   const frequencyCount = classifiedData.reduce((acc, data) => {
     acc[data.name] = (acc[data.name] || 0) + 1;
     return acc;
   }, {});
 
+  // Sort frequencies by dominance (highest count first)
   const sortedFrequencies = Object.entries(frequencyCount).sort((a, b) => b[1] - a[1]);
-  const [mostDominant, secondMostDominant] = sortedFrequencies;
+  const [mostDominant, secondMostDominant, thirdMostDominant] = sortedFrequencies;
 
-  if (mostDominant && secondMostDominant) {
-    if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha") {
-      return "KESIAPAN TINGGI";
-    } else if (mostDominant[0] === "Tetha" && secondMostDominant[0] === "Alpha" && sortedFrequencies.length > 2) {
-      return "KESIAPAN SEDANG";
-    } else if (mostDominant[0] !== "Tetha" && mostDominant[0] !== "Alpha") {
-      return "KESIAPAN RENDAH";
-    }
+  const isTethaDominant = [mostDominant[0], secondMostDominant[0]].includes('Tetha'); // yang jadi pertanyaan selanjutnya apakah perlu mengecek kedominanan tetha maupun alpha dari thirdMostDominan
+  const isAlphaDominant = [mostDominant[0], secondMostDominant[0]].includes('Alpha');
+  
+  console.log([mostDominant, secondMostDominant, thirdMostDominant, isTethaDominant, isAlphaDominant]);
+  // Ensure at least two dominant frequencies are available
+  if (!mostDominant || !secondMostDominant) {
+    return "Data tidak mencukupi untuk klasifikasi";
   }
+  // Classification logic
+  // Yang dimaksud dominan Tetha dan alpha = Jika Tetha Dan Alpha Sama2 berada di antara 3 dominan ini maka kesiapan tinggi
+  // namun jika ada frequensi lain yang lebih dominan selain Tetha dan Alpha maka Kesiapan sedang
+  // jika tetha dan alpha tidak dominan maka kesiapan rendah
+
+  // Jika Tetha dan Alpha keduanya berada di antara tiga frekuensi dominan
+  if (isTethaDominant && isAlphaDominant) {
+     // Jika Tetha dan Alpha keduanya berada di antara dua frekuensi dominan
+     if (thirdMostDominant && !['Tetha', 'Alpha'].includes(thirdMostDominant[0])) {
+      return "KESIAPAN SEDANG"; // Jika thirdMostDominant bukan Tetha atau Alpha
+    }
+    return "KESIAPAN TINGGI";
+  } else {
+    // Jika tidak ada Tetha maupun Alpha yang dominan
+    return "KESIAPAN RENDAH";
+  }
+  // Default fallback
   return "Klasifikasi Tidak Diketahui";
 }
 
@@ -294,7 +312,7 @@ export function renderModule(channels) {
           <div style={chartStyles.wrapperStyle.style}>{renderCharts()}</div>
         </Card.Section>
       </Card>
-      {/* <Card title="Klasifikasi" sectioned>
+      <Card title="Klasifikasi" sectioned>
         <TextContainer>
           <p>Berdasarkan Channel:</p>
           <ul>
@@ -311,7 +329,7 @@ export function renderModule(channels) {
             <li>Tetha + Alpha Tidak Dominan = maka dalam keadaan kesiapan belajar yang buruk</li>
           </ul>
         </TextContainer>
-      </Card> */}
+      </Card>
     </React.Fragment>
   );
 }

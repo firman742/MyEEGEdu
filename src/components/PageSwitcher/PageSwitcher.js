@@ -8,8 +8,10 @@ import * as generalTranslations from "./components/translations/en";
 import { emptyAuxChannelData } from "./components/chartOptions";
 
 import * as funSpectra from "./components/EEGEduSpectra/EEGEduSpectra";
+import * as funBands from "./components/EEGEduBands/EEGEduBands";
 
-const spectra = translations.types.spectra;
+// const spectra = translations.types.spectra;
+const bands = translations.types.bands;
 
 export function PageSwitcher() {
 
@@ -25,16 +27,19 @@ export function PageSwitcher() {
   let showAux = true; // untuk memastikan bisa ditekan (mencegah penggunaan pada beberapa modul)
 
   // data yang ditarik dari multicast$
-  const [spectraData, setSpectraData] = useState(emptyAuxChannelData);
+  // const [spectraData, setSpectraData] = useState(emptyAuxChannelData);
+  const [bandsData, setBandsData] = useState(emptyAuxChannelData);
 
   // pengaturan pipa
-  const [spectraSettings, setSpectraSettings] = useState(funSpectra.getSettings);
+  // const [spectraSettings, setSpectraSettings] = useState(funSpectra.getSettings);
+  const [bandsSettings, setBandsSettings] = useState(funBands.getSettings);
 
   // status koneksi
   const [status, setStatus] = useState(generalTranslations.connect);
 
   // untuk memilih modul baru
-  const [selected, setSelected] = useState(spectra);
+  // const [selected, setSelected] = useState(spectra);
+  const [selected, setSelected] = useState(bands);
 
   // untuk flag popup saat merekam
   const [recordPop, setRecordPop] = useState(false);
@@ -48,26 +53,35 @@ export function PageSwitcher() {
   // const [top10Data, setTop10Data] = useState(null);
 
   switch (selected) {
-    case spectra:
+    // case spectra:
+    //   showAux = true;
+    //   break;
+    case bands: 
       showAux = true;
-      break;
+      break
     default:
       console.log("Kesalahan pada showAux");
   }
 
   const chartTypes = [
-    { label: spectra, value: spectra },
+    // { label: spectra, value: spectra },
+    { label: bands, value: bands },
 
   ];
 
   function buildPipes(value) {
-    funSpectra.buildPipe(spectraSettings);
+    // funSpectra.buildPipe(spectraSettings);
+    funBands.buildPipe(bandsSettings);
+
   }
 
   function subscriptionSetup(value) {
     switch (value) {
-      case spectra:
-        funSpectra.setup(setSpectraData, spectraSettings);
+      // case spectra:
+      //   funSpectra.setup(setSpectraData, spectraSettings);
+      //   break;
+      case bands:
+        funBands.setup(setBandsData, bandsSettings);
         break;
       default:
         console.log(
@@ -120,9 +134,13 @@ export function PageSwitcher() {
 
   function pipeSettingsDisplay() {
     switch (selected) {
-      case spectra:
+      // case spectra:
+      //   return (
+      //     funSpectra.renderSliders(setSpectraData, setSpectraSettings, status, spectraSettings)
+      //   );
+      case bands: 
         return (
-          funSpectra.renderSliders(setSpectraData, setSpectraSettings, status, spectraSettings)
+          funBands.renderSliders(setBandsData, setBandsSettings, status, bandsSettings)
         );
       default: console.log('Kesalahan dalam menampilkan pengaturan');
     }
@@ -130,15 +148,17 @@ export function PageSwitcher() {
 
   function renderModules() {
     switch (selected) {
-      case spectra:
-        return <funSpectra.renderModule data={spectraData} />;
+      // case spectra:
+      //   return <funSpectra.renderModule data={spectraData} />;
+      case bands:
+        return <funBands.renderModule data={bandsData} />;
       default:
         console.log("Kesalahan pada renderCharts switch.");
     }
   }
 
   function handleDoneButtonClick() {
-    const calculateClassification = funSpectra.ResultClassificationData();
+    const calculateClassification = funBands.ResultClassificationData();
     let description = "";
     let learningMethod = "";
 

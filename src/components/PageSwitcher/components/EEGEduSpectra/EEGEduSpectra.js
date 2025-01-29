@@ -77,16 +77,22 @@ export function setup(setData, Settings) {
         Object.values(spectraData).forEach((channel, index) => {
           channel.datasets[0].data = data.psd[index];
           channel.xLabels = data.freqs;
+          // console.log(channel);
 
-          // Store yValue (data.psd) and xValue (data.freqs) for each channel
-          dataCollection.push({
+          const currentData = {
             yValue: data.psd[index], // amplitude
             xValue: data.freqs, // frequency
-          });
+          };
+
+          // console.log(currentData);
+          // Store yValue (data.psd) and xValue (data.freqs) for each channel
+          dataCollection.push(currentData);
+
+
         });
 
         return {
-          ch0: spectraData.ch0,
+          // ch0: spectraData.ch0,
           ch1: spectraData.ch1,
           ch2: spectraData.ch2,
           ch3: spectraData.ch3,
@@ -126,9 +132,12 @@ function getTop10LargestData(dataCollection) {
       uniqueDataMap.set(data.xValue, data.yValue);
     }
   });
+  console.log(flatData);
+
 
   // Konversi hasil ke array dan urutkan berdasarkan yValue
   const uniqueDataArray = Array.from(uniqueDataMap, ([xValue, yValue]) => ({ xValue, yValue }));
+  console.log(uniqueDataArray);
 
   // Ambil 10 nilai terbesar berdasarkan yValue
   return uniqueDataArray.sort((a, b) => b.yValue - a.yValue).slice(0, 10);
@@ -160,6 +169,7 @@ function calculateClassification(classifiedData) {
     acc[data.name] = (acc[data.name] || 0) + 1;
     return acc;
   }, {});
+
 
   // Sort frequencies by dominance (highest count first)
   const sortedFrequencies = Object.entries(frequencyCount).sort((a, b) => b[1] - a[1]);
@@ -196,7 +206,7 @@ function calculateClassification(classifiedData) {
 export function renderModule(channels) {
   function renderCharts() {
     let vertLim = Math.floor(Math.max(...[].concat.apply([], [
-      channels.data.ch0.datasets[0].data,
+      // channels.data.ch0.datasets[0].data,
       channels.data.ch1.datasets[0].data,
       channels.data.ch2.datasets[0].data,
       channels.data.ch3.datasets[0].data,
@@ -243,12 +253,14 @@ export function renderModule(channels) {
 
     if (channels.data.ch3.datasets[0].data) {
       const newData = {
-        datasets: [{
-          label: channelNames[0],
-          borderColor: 'rgba(217,95,2)',
-          data: channels.data.ch0.datasets[0].data,
-          fill: false
-        }, {
+        datasets: [
+        //   {
+        //   label: channelNames[0],
+        //   borderColor: 'rgba(217,95,2)',
+        //   data: channels.data.ch0.datasets[0].data,
+        //   fill: false
+        // }, 
+        {
           label: channelNames[1],
           borderColor: 'rgba(27,158,119)',
           data: channels.data.ch1.datasets[0].data,
@@ -269,7 +281,7 @@ export function renderModule(channels) {
           data: channels.data.ch4.datasets[0].data,
           fill: false
         }],
-        xLabels: channels.data.ch0.xLabels
+        xLabels: channels.data.ch1.xLabels
       }
 
       return (

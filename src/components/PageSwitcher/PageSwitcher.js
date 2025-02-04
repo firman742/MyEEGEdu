@@ -30,6 +30,9 @@ export function PageSwitcher() {
   // const [spectraData, setSpectraData] = useState(emptyAuxChannelData);
   const [bandsData, setBandsData] = useState(emptyAuxChannelData);
 
+  // State untuk mengontrol status tombol "Finish"
+  const [isFinishClicked, setIsFinishClicked] = useState(false);
+
   // pengaturan pipa
   // const [spectraSettings, setSpectraSettings] = useState(funSpectra.getSettings);
   const [bandsSettings, setBandsSettings] = useState(funBands.getSettings);
@@ -132,6 +135,10 @@ export function PageSwitcher() {
     }
   }
 
+  function refreshPage(){
+    window.location.reload();
+  }
+
   function pipeSettingsDisplay() {
     switch (selected) {
       // case spectra:
@@ -189,10 +196,13 @@ export function PageSwitcher() {
     };
 
     setData(data);
+    setIsFinishClicked(true); // Set status tombol "Finish" sudah ditekan
   }
+
   // Tampilkan seluruh halaman menggunakan fungsi di atas
   return (
     <React.Fragment>
+      <div class="sticky-header">
       <Card sectioned>
         <Stack>
           <ButtonGroup>
@@ -233,14 +243,14 @@ export function PageSwitcher() {
             </Button>
 
             {/* Tombol Putuskan Koneksi */}
-            {/* <Button
-              destructive
-              onClick={refreshPage}
-              primary={status !== generalTranslations.connect}
-              disabled={status === generalTranslations.connect}
-            >
-              {generalTranslations.disconnect}
-            </Button> */}
+            <Button
+                destructive
+                onClick={refreshPage}
+                primary={isFinishClicked} // Aktifkan tombol "Ulangi" jika "Finish" sudah ditekan
+                disabled={!isFinishClicked} // Nonaktifkan jika "Finish" belum ditekan
+              >
+                Ulangi
+              </Button>
           </ButtonGroup>
           {/* Aktifkan Mode Auxi */}
           {/* <Checkbox
@@ -251,6 +261,7 @@ export function PageSwitcher() {
           /> */}
         </Stack>
       </Card>
+      </div>
       {/* <Card title={translations.title} sectioned>
         <Select
           label={""}
@@ -274,7 +285,21 @@ export function PageSwitcher() {
         )}
       </Card>
 
-      <pre style={{ fontSize: "10px", alignContent: "center", textAlign: "center" }}>Pengabdian dengan dukungan Kemendibudristek 2024</pre>
+      <pre style={{ fontSize: "15px", alignContent: "center", textAlign: "center" }}>Pengabdian dengan dukungan Kemendibudristek 2024</pre>
+
+       {/* Tambahkan gaya CSS */}
+       <style>
+        {`
+          .sticky-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            padding-top: 0px;
+          }
+        `}
+      </style>
     </React.Fragment>
   );
 }
